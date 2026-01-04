@@ -23,9 +23,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
     private final AuthUtil authUtil;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        try {
 
             log.info("incoming request: {}", request.getRequestURI());
 
@@ -46,5 +49,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
             filterChain.doFilter(request, response);
+        }catch (Exception exception){
+            handlerExceptionResolver.resolveException(request, response, null, exception);
+        }
     }
 }
