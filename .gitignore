@@ -37,9 +37,8 @@ Thumbs.db
 application-local.yml
 application-local.properties
 application-dev.yml
-application-dev.properties
 application-prod.yml
-application-prod.properties
+
 
 ### Test & coverage ###
 /coverage/
