@@ -1,6 +1,7 @@
 package com.h2k.Expense.Tracker.repository;
 
 import com.h2k.Expense.Tracker.dto.CategorySummaryDTO;
+import com.h2k.Expense.Tracker.dto.ExpenseRequestDto;
 import com.h2k.Expense.Tracker.entity.Expense;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,11 +15,23 @@ import java.util.List;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.transactionType = 'EXPENSE'")
-    BigDecimal getTotalExpense();
+    List<Expense> findByUserId(Long userId);
 
-    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.transactionType = 'INCOME'")
-    BigDecimal getTotalIncome();
+    @Query("""
+        SELECT COALESCE(SUM(e.amount), 0)
+        FROM Expense e
+        WHERE e.transactionType = 'EXPENSE'
+        AND e.user.id = :userId
+    """)
+    BigDecimal getTotalExpenseByUser(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT COALESCE(SUM(e.amount), 0)
+        FROM Expense e
+        WHERE e.transactionType = 'INCOME'
+        AND e.user.id = :userId
+    """)
+    BigDecimal getTotalIncomeByUser(@Param("userId") Long userId);
 
     @Query("SELECT e.categoryType AS categoryType, SUM(e.amount) AS totalAmount " +
             "FROM Expense e WHERE e.transactionType = 'EXPENSE' GROUP BY e.categoryType"

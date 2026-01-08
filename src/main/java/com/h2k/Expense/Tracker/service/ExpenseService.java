@@ -2,7 +2,9 @@ package com.h2k.Expense.Tracker.service;
 
 import com.h2k.Expense.Tracker.dto.*;
 import com.h2k.Expense.Tracker.entity.Expense;
+import com.h2k.Expense.Tracker.entity.User;
 import com.h2k.Expense.Tracker.repository.ExpenseRepository;
+import com.h2k.Expense.Tracker.security.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -17,26 +19,36 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final ModelMapper modelMapper;
+    private final AuthUtil authUtil;
 
     public ExpenseListResponseDto getAllExpenses() {
-        List<ExpenseResponseDto> expenses = expenseRepository.findAll()
-                .stream()
-                .map(expense -> modelMapper.map(expense, ExpenseResponseDto.class))
-                .toList();
 
-        BigDecimal totalIncome = expenseRepository.getTotalIncome();
-        BigDecimal totalExpense = expenseRepository.getTotalExpense();
+        User currentUser = authUtil.getCurrentUser();
+
+        List<ExpenseResponseDto> expenses =
+                expenseRepository.findByUserId(currentUser.getId())
+                        .stream()
+                        .map(expense -> modelMapper.map(expense, ExpenseResponseDto.class))
+                        .toList();
+
+        BigDecimal totalIncome = expenseRepository.getTotalIncomeByUser(currentUser.getId());
+        BigDecimal totalExpense = expenseRepository.getTotalExpenseByUser(currentUser.getId());
         BigDecimal balance = totalIncome.subtract(totalExpense);
-        return new ExpenseListResponseDto(totalIncome,totalExpense,balance,expenses);
+
+        return new ExpenseListResponseDto(totalIncome, totalExpense, balance, expenses);
     }
 
     public ExpenseResponseDto addExpense(ExpenseRequestDto expenseRequestDto) {
+
+        User currentUser = authUtil.getCurrentUser();
+
         Expense expense = Expense.builder()
                 .title(expenseRequestDto.getTitle())
                 .amount(expenseRequestDto.getAmount())
                 .expenseDate(LocalDate.now())
                 .categoryType(expenseRequestDto.getCategory())
                 .transactionType(expenseRequestDto.getTransactionType())
+                .user(currentUser)
                 .build();
 
         return modelMapper.map(expenseRepository.save(expense), ExpenseResponseDto.class);
