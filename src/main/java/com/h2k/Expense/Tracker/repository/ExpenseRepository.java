@@ -14,14 +14,20 @@ import java.util.List;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.transactionType = 'EXPENSE'")
+    BigDecimal getTotalExpense();
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.transactionType = 'INCOME'")
+    BigDecimal getTotalIncome();
+
     @Query("SELECT e.categoryType AS categoryType, SUM(e.amount) AS totalAmount " +
-            "FROM Expense e GROUP BY e.categoryType"
+            "FROM Expense e WHERE e.transactionType = 'EXPENSE' GROUP BY e.categoryType"
     )
     List<CategorySummaryDTO> findCategorySummary();
 
     @Query("SELECT SUM(e.amount) FROM Expense e " +
-            "WHERE e.expenseDate BETWEEN :startDate " +
-            "AND :endDate")
+            "WHERE e.expenseDate BETWEEN :startDate AND :endDate " +
+            "AND e.transactionType = 'EXPENSE'")
     BigDecimal findTotalMonthlyExpense(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
@@ -33,7 +39,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
                 SUM(e.amount)
             )
             FROM Expense e
-            WHERE e.expenseDate BETWEEN :startDate AND :endDate
+            WHERE e.expenseDate BETWEEN :startDate AND :endDate AND e.transactionType = 'EXPENSE'
             GROUP BY e.categoryType
             """)
     List<CategorySummaryDTO> findMonthlyCategoryBreakdown(

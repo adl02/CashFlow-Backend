@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class SignupResponseDto {
     private Long id;
+    private String name;
     private String username;
     private LocalDate createdAt;
 }

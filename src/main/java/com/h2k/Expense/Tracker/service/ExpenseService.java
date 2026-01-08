@@ -1,9 +1,6 @@
 package com.h2k.Expense.Tracker.service;
 
-import com.h2k.Expense.Tracker.dto.CategorySummaryDTO;
-import com.h2k.Expense.Tracker.dto.ExpenseRequestDto;
-import com.h2k.Expense.Tracker.dto.ExpenseResponseDto;
-import com.h2k.Expense.Tracker.dto.MonthlySummaryDTO;
+import com.h2k.Expense.Tracker.dto.*;
 import com.h2k.Expense.Tracker.entity.Expense;
 import com.h2k.Expense.Tracker.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +18,16 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ModelMapper modelMapper;
 
-    public List<ExpenseResponseDto> getAllExpenses() {
-        return expenseRepository.findAll()
+    public ExpenseListResponseDto getAllExpenses() {
+        List<ExpenseResponseDto> expenses = expenseRepository.findAll()
                 .stream()
                 .map(expense -> modelMapper.map(expense, ExpenseResponseDto.class))
                 .toList();
+
+        BigDecimal totalIncome = expenseRepository.getTotalIncome();
+        BigDecimal totalExpense = expenseRepository.getTotalExpense();
+        BigDecimal balance = totalIncome.subtract(totalExpense);
+        return new ExpenseListResponseDto(totalIncome,totalExpense,balance,expenses);
     }
 
     public ExpenseResponseDto addExpense(ExpenseRequestDto expenseRequestDto) {
@@ -34,13 +36,14 @@ public class ExpenseService {
                 .amount(expenseRequestDto.getAmount())
                 .expenseDate(LocalDate.now())
                 .categoryType(expenseRequestDto.getCategory())
+                .transactionType(expenseRequestDto.getTransactionType())
                 .build();
 
         return modelMapper.map(expenseRepository.save(expense), ExpenseResponseDto.class);
     }
 
     public ExpenseResponseDto updateExpense(Long id, ExpenseRequestDto expenseRequestDto) {
-        Expense expense = expenseRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Expenses not found with this id : "+id));
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expenses not found with this id : " + id));
         modelMapper.map(expenseRequestDto, expense);
         expense.setModifiedAt(LocalDate.now());
         expense = expenseRepository.save(expense);
@@ -49,7 +52,7 @@ public class ExpenseService {
 
 
     public void deleteExpense(Long id) {
-        Expense expense = expenseRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Expenses not found with this id : "+id));
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expenses not found with this id : " + id));
         expenseRepository.deleteById(id);
     }
 
@@ -59,7 +62,7 @@ public class ExpenseService {
 
     public MonthlySummaryDTO getMonthlySummary(int month, int year) {
 
-        LocalDate startDate = LocalDate.of(year, month,1);
+        LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
         BigDecimal totalExpense = expenseRepository.findTotalMonthlyExpense(startDate, endDate);

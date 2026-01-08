@@ -4,5 +4,6 @@ public enum CategoryType {
     TRAVEL,
     GROCERY,
     VEGETABLE,
+    RENT,
     OTHERS
 }

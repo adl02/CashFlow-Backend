@@ -1,9 +1,6 @@
 package com.h2k.Expense.Tracker.controller;
 
-import com.h2k.Expense.Tracker.dto.CategorySummaryDTO;
-import com.h2k.Expense.Tracker.dto.ExpenseRequestDto;
-import com.h2k.Expense.Tracker.dto.ExpenseResponseDto;
-import com.h2k.Expense.Tracker.dto.MonthlySummaryDTO;
+import com.h2k.Expense.Tracker.dto.*;
 import com.h2k.Expense.Tracker.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +18,7 @@ public class ExpenseController {
 
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDto>> getAllExpenses() {
+    public ResponseEntity<ExpenseListResponseDto> getAllExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 

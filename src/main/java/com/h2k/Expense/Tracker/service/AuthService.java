@@ -36,6 +36,7 @@ public class AuthService {
         modelMapper.map(signupRequestDto, User.class);
 
         user = userRepository.save(User.builder()
+                .name(signupRequestDto.getName())
                 .username(signupRequestDto.getUsername())
                 .createdAt(LocalDate.now())
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))

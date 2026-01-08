@@ -1,6 +1,7 @@
 package com.h2k.Expense.Tracker.dto;
 
 import com.h2k.Expense.Tracker.entity.type.CategoryType;
+import com.h2k.Expense.Tracker.entity.type.TransactionType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,4 +11,5 @@ public class ExpenseRequestDto {
     private String title;
     private BigDecimal amount;
     private CategoryType category;
+    private TransactionType transactionType;
 }
