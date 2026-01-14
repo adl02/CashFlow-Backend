@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -17,8 +15,8 @@ public class UserController {
 
 
     @GetMapping("/user")
-    public ResponseEntity<List<SignupResponseDto>> getAllUser(){
-        return ResponseEntity.ok(userService.getAllUser());
+    public ResponseEntity<SignupResponseDto> getCurrentUser(){
+        return ResponseEntity.ok(userService.getCurrentUser());
     }
 
 }
