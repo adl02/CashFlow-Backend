@@ -1,5 +1,5 @@
 # -------- BUILD STAGE --------
-FROM eclipse-temurin:17-jdk-focal AS builder
+FROM eclipse-temurin:21-jdk-focal AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN ./mvnw clean package -DskipTests
 
 
 # -------- RUN STAGE --------
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:21-jre-focal
 
 WORKDIR /app
 
